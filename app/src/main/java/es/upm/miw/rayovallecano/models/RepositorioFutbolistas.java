@@ -44,7 +44,7 @@ public class RepositorioFutbolistas extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues valores = new ContentValues();
 
-        valores.put(tablaFutbolista.COL_NAME_ID, futbolista.get_id());
+        valores.put(tablaFutbolista.COL_NAME_ID, futbolista.get_id()); //Los ID realmente no hace falta pasarlos.
         valores.put(tablaFutbolista.COL_NAME_NOMBRE, futbolista.get_nombre());
         valores.put(tablaFutbolista.COL_NAME_DORSAL, futbolista.get_dorsal());
         valores.put(tablaFutbolista.COL_NAME_LESIONADO, futbolista.is_lesionado());
