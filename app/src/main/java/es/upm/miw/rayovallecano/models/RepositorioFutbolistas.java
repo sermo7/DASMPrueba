@@ -2,8 +2,12 @@ package es.upm.miw.rayovallecano.models;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.ArrayList;
+
 import static es.upm.miw.rayovallecano.models.FutbolistaContract.tablaFutbolista;
 
 public class RepositorioFutbolistas extends SQLiteOpenHelper {
@@ -20,7 +24,7 @@ public class RepositorioFutbolistas extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         //String sentenciaSQL = "CREATE TABLE "+FutbolistaContract.tablaFutbolista.TABLE_NAME + "("; //como queda muy mal hacer import directamente (el de tablaFutbolista y la linea queda mas pequeña
-        String sentenciaSQL = "CREATE TABLE "+ tablaFutbolista.TABLE_NAME + "(" //el espacio después de TABLE es importante al igual que abajo el de antes de INTEGER para evitar que se concatene
+        String sentenciaSQL = "CREATE TABLE " + tablaFutbolista.TABLE_NAME + "(" //el espacio después de TABLE es importante al igual que abajo el de antes de INTEGER para evitar que se concatene
                 + tablaFutbolista.COL_NAME_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + tablaFutbolista.COL_NAME_NOMBRE + " TEXT, "
                 + tablaFutbolista.COL_NAME_DORSAL + " INTEGER, "
@@ -52,6 +56,39 @@ public class RepositorioFutbolistas extends SQLiteOpenHelper {
         valores.put(tablaFutbolista.COL_NAME_URL, futbolista.get_url_imagen());
 
         return db.insert(tablaFutbolista.TABLE_NAME, null, valores);
-
     }
+
+    public ArrayList<Futbolista> getAll() {
+        ArrayList<Futbolista> futbolistas = new ArrayList<>();
+        String consultaSQL = "SELECT * FROM " + tablaFutbolista.TABLE_NAME;
+
+        SQLiteDatabase db = getReadableDatabase();
+
+        // hacer consulta y recuperar información
+
+        Cursor cursor = db.rawQuery(consultaSQL, null); //Devuelve un cursor en todas las filas que devolverá de la columna
+
+        if (cursor.moveToFirst()) { //si hay  datos (no hace falta preguntar si es vacío)
+            while (!cursor.isAfterLast()) {
+                Futbolista futbolista = new Futbolista(
+                        cursor.getInt(cursor.getColumnIndex(tablaFutbolista.COL_NAME_ID)), //En lugar de poner 0 que dependería de cómo estuviera colocado entonces se selecciona a través del nombre de la columna.
+                        cursor.getString(cursor.getColumnIndex(tablaFutbolista.COL_NAME_NOMBRE)),
+                        cursor.getInt(cursor.getColumnIndex(tablaFutbolista.COL_NAME_DORSAL)),
+                        cursor.getInt(cursor.getColumnIndex(tablaFutbolista.COL_NAME_LESIONADO)) != 0, //Al ser booleano pregunto si el valor es distinto de 0
+                        cursor.getString(cursor.getColumnIndex(tablaFutbolista.COL_NAME_EQUIPO)),
+                        cursor.getString(cursor.getColumnIndex(tablaFutbolista.COL_NAME_URL))
+                );
+
+                futbolistas.add(futbolista);
+                cursor.moveToNext();
+
+            }
+
+        }
+
+
+        return futbolistas;
+    }
+
+
 }
